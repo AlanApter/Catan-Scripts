@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dice Distribution Simulator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 {
+      text-align: center;
+    }
+    .bar {
+      height: 20px;
+      background-color: #4CAF50;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    table, th, td {
+      border: 1px solid #ccc;
+    }
+    th, td {
+      padding: 8px;
+      text-align: center;
+    }
+    .input-container {
+      margin: 20px 0;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <h1>Dice Distribution Simulator</h1>
+  <div class="input-container">
+    <label for="rolls">Number of Rolls: </label>
+    <input type="number" id="rolls" min="10" max="1000000" step="10" value="1000">
+  </div>
+  <div style="text-align: center;">
+    <button onclick="simulateDice()">Roll Dice</button>
+  </div>
+  <div id="results"></div>
+
+  <script>
+    function simulateDice() {
+      const numRolls = parseInt(document.getElementById("rolls").value, 10);
+      if (isNaN(numRolls) || numRolls < 10) {
+        alert("Please enter a valid number of rolls (10 or more).");
+        return;
+      }
+      
+      // Initialize counts for sums 2 to 12
+      const counts = {};
+      for (let sum = 2; sum <= 12; sum++) {
+        counts[sum] = 0;
+      }
+
+      // Simulate dice rolls
+      for (let i = 0; i < numRolls; i++) {
+        const die1 = Math.floor(Math.random() * 6) + 1;
+        const die2 = Math.floor(Math.random() * 6) + 1;
+        const sum = die1 + die2;
+        counts[sum]++;
+      }
+
+      // Find the maximum count (used for scaling the bar display)
+      let maxCount = 0;
+      for (let sum = 2; sum <= 12; sum++) {
+        if (counts[sum] > maxCount) maxCount = counts[sum];
+      }
+
+      // Expected percentages for two dice
+      const expected = {
+        2: (1 / 36) * 100,
+        3: (2 / 36) * 100,
+        4: (3 / 36) * 100,
+        5: (4 / 36) * 100,
+        6: (5 / 36) * 100,
+        7: (6 / 36) * 100,
+        8: (5 / 36) * 100,
+        9: (4 / 36) * 100,
+        10: (3 / 36) * 100,
+        11: (2 / 36) * 100,
+        12: (1 / 36) * 100,
+      };
+
+      // Build the results table
+      let html = "<table>";
+      html += "<tr><th>Dice Sum</th><th>Count</th><th>Percentage</th><th>Expected %</th><th>Difference</th><th>Bar</th></tr>";
+      for (let sum = 2; sum <= 12; sum++) {
+        const count = counts[sum];
+        const percentage = ((count / numRolls) * 100).toFixed(2);
+        const expectedPercentage = expected[sum].toFixed(2);
+		const difference = (((count / numRolls) * 100) - expected[sum]).toFixed(2);
+        const barWidth = ((count / maxCount) * 100).toFixed(2);
+        html += `<tr>
+                  <td>${sum}</td>
+                  <td>${count}</td>
+                  <td>${percentage}%</td>
+                  <td>${expectedPercentage}%</td>
+				  <td>${difference}%</td>
+                  <td><div class="bar" style="width:${barWidth}%"></div></td>
+                </tr>`;
+      }
+      html += "</table>";
+
+      document.getElementById("results").innerHTML = html;
+    }
+  </script>
+</body>
+</html>
